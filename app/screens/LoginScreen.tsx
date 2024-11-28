@@ -46,13 +46,12 @@ export default function LoginScreen({ navigation }: any) {
 
     await AsyncStorage.setItem("userToken", result.token);
     await AsyncStorage.setItem("username", result.name);
+    await AsyncStorage.setItem("role", result.role);
 
     if (result.role === "ADMIN") {
       navigation.replace("HomeAdmin");
-    } else if (result.role === "DRIVER") {
-      navigation.replace("HomeDriver");
-    } else if (result.role === "SALES") {
-      navigation.replace("HomeSales");
+    } else {
+      navigation.replace("Delivery");
     }
 
     setLoading(false);

@@ -12,5 +12,14 @@ export interface JadwalResult extends BaseResult {
   customer: string;
   deskripsi: string | null;
   destination: string;
-  statis: TYPE_STATUS_JADWAL;
+  status: TYPE_STATUS_JADWAL;
+}
+
+export interface CreateJadwalPayload {
+  truckXid: string;
+  driverXid: string;
+  tanggal: number;
+  deskripsi: string | null;
+  customer: string;
+  destination: string;
 }

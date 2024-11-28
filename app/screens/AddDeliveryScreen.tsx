@@ -17,7 +17,12 @@ import {
 import { FlatList } from "react-native-gesture-handler";
 import { getListTruckApi } from "../api/truck.api";
 import { TruckResult } from "../dto/truck.dto";
+import { CreateJadwalPayload } from "../dto/jadwal.dto";
 import { DefaultListPayload } from "../dto/commmon.dto";
+import { UserResult } from "../dto/user.dto";
+import { createJadwal } from "../api/jadwal.api";
+import { getListUsersApi } from "../api/users.api";
+import { ROLE } from "../constant/role.constant";
 
 export default function AddDeliveryScreen({ navigation }: any) {
   const [formData, setFormData] = useState({
@@ -27,14 +32,20 @@ export default function AddDeliveryScreen({ navigation }: any) {
     destination: "",
     customerName: "",
     driverName: "",
+    driverXid: "",
     description: "",
   });
 
   const [searchTruck, setSearchTruck] = useState("");
+  const [searchDriver, setSearchDriver] = useState("");
   const [trucks, setTrucks] = useState<TruckResult[]>([]);
+  const [drivers, setDrivers] = useState<UserResult[]>([]);
   const [showTruckModal, setShowTruckModal] = useState(false);
+  const [showDriverModal, setShowDriverModal] = useState(false);
+  const [loadingDriver, setLoadingDriver] = useState(false);
   const [loadingTrucks, setLoadingTrucks] = useState(false);
   const [selectedTruck, setSelectedTruck] = useState<TruckResult | null>(null);
+  const [selectedDriver, setSelectedDriver] = useState<UserResult | null>(null);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -49,7 +60,7 @@ export default function AddDeliveryScreen({ navigation }: any) {
     // Implementasi submit ke API
     try {
       // Submit logic here
-      navigation.goBack();
+      addDelivery();
     } catch (error) {
       console.error(error);
     }
@@ -83,6 +94,35 @@ export default function AddDeliveryScreen({ navigation }: any) {
     }
   };
 
+  const searchDrivers = async (query: string) => {
+    if (query.length < 2) {
+      setDrivers([]);
+      return;
+    }
+
+    setLoadingDriver(true);
+    try {
+      const data = await getListUsersApi({
+        ...DefaultListPayload,
+        limit: 5,
+        filters: {
+          role: ROLE.DRIVER,
+          name: query,
+        },
+      });
+
+      if (typeof data === "string") {
+        Alert.alert("Error", data);
+        return;
+      }
+      setDrivers(data.items);
+    } catch (error) {
+      console.error("Error searching driver:", error);
+    } finally {
+      setLoadingDriver(false);
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       searchTrucks(searchTruck);
@@ -90,6 +130,14 @@ export default function AddDeliveryScreen({ navigation }: any) {
 
     return () => clearTimeout(timer);
   }, [searchTruck]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchDrivers(searchDriver);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [searchDriver]);
 
   const selectTruck = (truck: TruckResult) => {
     setSelectedTruck(truck);
@@ -100,6 +148,61 @@ export default function AddDeliveryScreen({ navigation }: any) {
     });
     setShowTruckModal(false);
     setSearchTruck("");
+  };
+
+  const selectDriver = (driver: UserResult) => {
+    setSelectedDriver(driver);
+    setFormData({
+      ...formData,
+      driverName: driver.name,
+      driverXid: driver.xid,
+    });
+    setShowDriverModal(false);
+    setSearchDriver("");
+  };
+
+  const addDelivery = async () => {
+    if (!selectedTruck) {
+      Alert.alert("Error", "truck harus di isi");
+      return;
+    }
+
+    if (!selectedDriver) {
+      Alert.alert("Error", "driver harus di isi");
+      return;
+    }
+
+    if (!formData.customerName.trim()) {
+      Alert.alert("Error", "customer harus di isi");
+      return;
+    }
+
+    if (!formData.destination.trim()) {
+      Alert.alert("Error", "destination harus di isi");
+      return;
+    }
+
+    formData.date.setUTCHours(12, 0, 0, 0);
+
+    const epoch = Math.floor(formData.date.getTime() / 1000);
+
+    const payload: CreateJadwalPayload = {
+      truckXid: selectedTruck.xid,
+      driverXid: selectedDriver.xid,
+      tanggal: epoch,
+      customer: formData.customerName,
+      destination: formData.destination,
+      deskripsi: formData.description,
+    };
+
+    const result = await createJadwal(payload);
+
+    if (typeof result === "string") {
+      Alert.alert("Error", result);
+      return;
+    }
+
+    navigation.goBack();
   };
 
   return (
@@ -174,16 +277,19 @@ export default function AddDeliveryScreen({ navigation }: any) {
             }
           />
 
-          {/* Driver Name */}
-          <TextInput
+          {/* Truck Name */}
+          <TouchableOpacity
             style={styles.input}
-            placeholder="Nama Supir"
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
-            value={formData.driverName}
-            onChangeText={(text) =>
-              setFormData({ ...formData, driverName: text })
-            }
-          />
+            onPress={() => setShowDriverModal(true)}
+          >
+            <Text
+              style={
+                selectedDriver ? styles.selectedText : styles.placeholderText
+              }
+            >
+              {selectedDriver ? selectedDriver.name : "Pilih Driver"}
+            </Text>
+          </TouchableOpacity>
 
           {/* Description */}
           <TextInput
@@ -235,6 +341,51 @@ export default function AddDeliveryScreen({ navigation }: any) {
                   >
                     <Text style={styles.truckName}>{item.nama}</Text>
                     <Text style={styles.truckPlate}>{item.platNomor}</Text>
+                  </TouchableOpacity>
+                )}
+                ListEmptyComponent={() => (
+                  <Text style={styles.emptyText}>
+                    {searchTruck.length < 2
+                      ? "Ketik minimal 2 karakter untuk mencari"
+                      : "Tidak ada truk yang ditemukan"}
+                  </Text>
+                )}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showDriverModal} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Pilih Driver</Text>
+              <TouchableOpacity onPress={() => setShowDriverModal(false)}>
+                <Ionicons name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Cari driver..."
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"
+              onChangeText={setSearchDriver}
+            />
+
+            {loadingDriver ? (
+              <ActivityIndicator color="#fff" style={styles.loading} />
+            ) : (
+              <FlatList
+                data={drivers}
+                keyExtractor={(item) => item.xid}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.truckItem}
+                    onPress={() => selectDriver(item)}
+                  >
+                    <Text style={styles.truckName}>{item.name}</Text>
+                    <Text style={styles.truckPlate}>{item.xid}</Text>
                   </TouchableOpacity>
                 )}
                 ListEmptyComponent={() => (

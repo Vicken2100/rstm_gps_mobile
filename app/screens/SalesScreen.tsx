@@ -13,9 +13,22 @@ import {
 import { getJadwalList } from "../api/jadwal.api";
 import { DefaultListPayload } from "../dto/commmon.dto";
 import { JadwalResult } from "../dto/jadwal.dto";
+import { TYPE_ROLE } from "../constant/role.constant";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SalesScreen({ navigation }: any) {
   const [schedules, setSchedules] = useState<JadwalResult[]>([]);
+
+  const [role, setRole] = useState<TYPE_ROLE | null>(null);
+  useEffect(() => {
+    const getRole = async () => {
+      const role = (await AsyncStorage.getItem("role")) as TYPE_ROLE;
+
+      setRole(role);
+    };
+
+    getRole();
+  }, []);
 
   useEffect(() => {
     loadSchedules();
@@ -23,9 +36,17 @@ export default function SalesScreen({ navigation }: any) {
 
   const loadSchedules = async () => {
     try {
+      const startAt = new Date();
+      const endAt = new Date();
+      startAt.setUTCHours(0, 0, 1, 0);
+      endAt.setUTCHours(23, 59, 59, 999);
       const data = await getJadwalList({
         ...DefaultListPayload,
         showAll: true,
+        filters: {
+          startAt: Math.floor(startAt.getTime() / 1000),
+          endAt: Math.floor(endAt.getTime() / 1000),
+        },
       });
 
       if (typeof data === "string") {
@@ -45,9 +66,16 @@ export default function SalesScreen({ navigation }: any) {
     >
       <View style={styles.scheduleContent}>
         <Text style={styles.driverName}>{item.driver.name}</Text>
-        <Text style={styles.destination}>{item.destination}</Text>
+        <Text style={styles.destination}>
+          {new Date(item.tanggal * 1000).toISOString().split("T")[0]}
+        </Text>
+        <Text style={styles.destination}> {item.destination}</Text>
+        <Text style={styles.destination}> {item.status}</Text>
       </View>
-      <TouchableOpacity style={styles.checkButton}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("AddCheckpoint", { schedule: item })}
+        style={styles.checkButton}
+      >
         <Text style={styles.checkButtonText}>Check-Point</Text>
       </TouchableOpacity>
     </TouchableOpacity>
@@ -58,19 +86,28 @@ export default function SalesScreen({ navigation }: any) {
       <StatusBar backgroundColor="#4CAF50" barStyle="light-content" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      {role === "ADMIN" ? (
+        <>
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </>
+      ) : (
+        <></>
+      )}
 
       {/* Sub Header */}
       <View style={styles.subHeader}>
         <Text style={styles.subHeaderText}>Jadwal Hari Ini</Text>
-        <TouchableOpacity style={styles.refreshButton}>
+        <TouchableOpacity
+          style={styles.refreshButton}
+          onPress={() => navigation.navigate("Riwayat")}
+        >
           <Text style={styles.refreshText}>Riwayat</Text>
           <Ionicons name="arrow-forward" size={24} color="#fff" />
         </TouchableOpacity>

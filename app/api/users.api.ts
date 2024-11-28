@@ -1,7 +1,7 @@
 import { BASE_URL } from ".";
 import { CreateUserPayload, UserResult } from "../dto/user.dto";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Responses } from "../dto/commmon.dto";
+import { List_Payload, ListResult, Responses } from "../dto/commmon.dto";
 export const createUsers = async (
   payload: CreateUserPayload
 ): Promise<boolean> => {
@@ -64,4 +64,48 @@ export const updateProfile = async (payload: {
   });
 
   return response.ok;
+};
+
+export const getListUsersApi = async (
+  payload: List_Payload
+): Promise<ListResult<UserResult> | string> => {
+  const token = await AsyncStorage.getItem("userToken");
+  if (!token) {
+    return "Sesi telah habis, silahkan login kembali";
+  }
+
+  const url = new URL(`${BASE_URL}/users`);
+  const params = payload as Record<string, any>;
+
+  for (const key in payload) {
+    if (
+      params[key] &&
+      typeof params[key] === "object" &&
+      !Array.isArray(params[key])
+    ) {
+      for (const subKey in params[key]) {
+        url.searchParams.append(
+          `${key}[${subKey}]`,
+          String(params[key][subKey])
+        );
+      }
+    } else {
+      url.searchParams.append(key, String(params[key]));
+    }
+  }
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    return "Terjadi kesalahan pada server";
+  }
+
+  const result = (await response.json()) as Responses<ListResult<UserResult>>;
+
+  return result.data;
 };

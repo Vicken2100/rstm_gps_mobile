@@ -25,11 +25,6 @@ export default function AddTruckScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [truckImage, setTruckImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const createFileFromUri = async (uri: string) => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    return blob as any as File; // Cast blob sebagai File untuk memenuhi interface
-  };
 
   const handleAddTruck = async () => {
     const errors = [];
