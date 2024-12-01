@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  Image,
   View,
 } from "react-native";
 import { getJadwalList } from "../api/jadwal.api";
@@ -72,12 +73,18 @@ export default function SalesScreen({ navigation }: any) {
         <Text style={styles.destination}> {item.destination}</Text>
         <Text style={styles.destination}> {item.status}</Text>
       </View>
-      <TouchableOpacity
-        onPress={() => navigation.navigate("AddCheckpoint", { schedule: item })}
-        style={styles.checkButton}
-      >
-        <Text style={styles.checkButtonText}>Check-Point</Text>
-      </TouchableOpacity>
+      {role !== "DRIVER" ? (
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("AddCheckpoint", { schedule: item })
+          }
+          style={styles.checkButton}
+        >
+          <Text style={styles.checkButtonText}>Check-Point</Text>
+        </TouchableOpacity>
+      ) : (
+        <></>
+      )}
     </TouchableOpacity>
   );
 
@@ -98,7 +105,20 @@ export default function SalesScreen({ navigation }: any) {
           </View>
         </>
       ) : (
-        <></>
+        <>
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("settings")}
+              style={styles.headerLeft}
+            >
+              <Image
+                source={require("../assets/logo.png")}
+                style={styles.logo}
+              />
+              <Text style={styles.headerTitle}>RTSM</Text>
+            </TouchableOpacity>
+          </View>
+        </>
       )}
 
       {/* Sub Header */}
@@ -121,13 +141,27 @@ export default function SalesScreen({ navigation }: any) {
         contentContainerStyle={styles.listContainer}
       />
 
-      {/* Add Button */}
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => navigation.navigate("AddDelivery")}
-      >
-        <Text style={styles.addButtonText}>Tambah Jadwal</Text>
-      </TouchableOpacity>
+      {role === "DRIVER" ? (
+        <>
+          {/* Add Button */}
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => navigation.navigate("Perawatan")}
+          >
+            <Text style={styles.addButtonText}>Perawatan truk</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          {/* Add Button */}
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => navigation.navigate("AddDelivery")}
+          >
+            <Text style={styles.addButtonText}>Tambah Jadwal</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </SafeAreaView>
   );
 }
@@ -152,6 +186,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   subHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -170,6 +208,12 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 8,
   },
   scheduleItem: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",

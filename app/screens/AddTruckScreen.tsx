@@ -130,7 +130,7 @@ export default function AddTruckScreen({ navigation }: any) {
           <Text style={styles.label}>Nama Truk</Text>
           <TextInput
             style={styles.input}
-            placeholder="Truk vicken"
+            placeholder="Cth : Elf"
             placeholderTextColor="rgba(255, 255, 255, 0.5)"
             value={formData.truckName}
             onChangeText={(text) =>
@@ -141,7 +141,7 @@ export default function AddTruckScreen({ navigation }: any) {
           <Text style={styles.label}>Plat Kendaraan</Text>
           <TextInput
             style={styles.input}
-            placeholder="DB 2100 AU"
+            placeholder="Cth : DB 2100 AU"
             placeholderTextColor="rgba(255, 255, 255, 0.5)"
             value={formData.plateNumber}
             onChangeText={(text) =>

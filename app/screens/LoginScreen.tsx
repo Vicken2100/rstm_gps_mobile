@@ -51,7 +51,7 @@ export default function LoginScreen({ navigation }: any) {
     if (result.role === "ADMIN") {
       navigation.replace("HomeAdmin");
     } else {
-      navigation.replace("Delivery");
+      navigation.replace("Penjadwalan");
     }
 
     setLoading(false);

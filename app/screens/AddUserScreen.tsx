@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -9,28 +9,27 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
-import { ROLE } from '../constant/role.constant';
-import { CreateUserPayload } from '../dto/user.dto';
-import { createUsers } from '../api/users.api';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
+import { ROLE } from "../constant/role.constant";
+import { CreateUserPayload } from "../dto/user.dto";
+import { createUsers } from "../api/users.api";
 
 export default function AddUserScreen({ navigation }: any) {
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    confirmPassword: '',
-    karyawan: '',
-    hp: '',
+    username: "",
+    password: "",
+    confirmPassword: "",
+    karyawan: "",
+    hp: "",
     role: ROLE.DRIVER,
   });
 
-
   const roles = [
-    { label: 'Admin', value: ROLE.ADMIN },
-    { label: 'Sales', value: ROLE.SALES },
-    { label: 'Driver', value: ROLE.DRIVER },
+    { label: "Admin", value: ROLE.ADMIN },
+    { label: "Sales", value: ROLE.SALES },
+    { label: "Sopir", value: ROLE.DRIVER },
   ];
 
   const [isLoading, setIsLoading] = useState(false);
@@ -38,13 +37,13 @@ export default function AddUserScreen({ navigation }: any) {
   const handleRegister = async () => {
     try {
       // Validasi form
-      if (Object.values(formData).some(value => value.trim() === '')) {
-        Alert.alert('Error', 'Semua field harus diisi');
+      if (Object.values(formData).some((value) => value.trim() === "")) {
+        Alert.alert("Error", "Semua field harus diisi");
         return;
       }
 
       if (formData.password !== formData.confirmPassword) {
-        Alert.alert('Error', 'Password tidak cocok');
+        Alert.alert("Error", "Password tidak cocok");
         return;
       }
 
@@ -55,23 +54,22 @@ export default function AddUserScreen({ navigation }: any) {
         username: formData.username,
         password: formData.password,
         role: formData.role,
-        name: formData.karyawan
-      }
+        name: formData.karyawan,
+      };
 
       // Implementasi API register di sini
       const result = await createUsers(payload);
 
       if (!result) {
-        Alert.alert('Error', 'Terjadi kesalahan saat mendaftar');
-        return
+        Alert.alert("Error", "Terjadi kesalahan saat mendaftar");
+        return;
       }
-      
+
       // Jika berhasil, kembali ke halaman login
       navigation.goBack();
-
     } catch (error) {
-      console.error('Register error:', error);
-      Alert.alert('Error', 'Terjadi kesalahan saat mendaftar');
+      console.error("Register error:", error);
+      Alert.alert("Error", "Terjadi kesalahan saat mendaftar");
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +79,7 @@ export default function AddUserScreen({ navigation }: any) {
     <SafeAreaView style={styles.container}>
       {/* Header dengan tombol kembali */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
@@ -91,41 +89,49 @@ export default function AddUserScreen({ navigation }: any) {
 
       <ScrollView style={styles.content}>
         <Text style={styles.title}>Daftar Di RTSM</Text>
-        <Text style={styles.subtitle}>Masukkan username dan password</Text>
+        <Text style={styles.subtitle}>
+          Masukkan Nama Pengguna dan Kata Sandi
+        </Text>
 
         <View style={styles.form}>
           {/* Username */}
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Username</Text>
+            <Text style={styles.label}>Nama pengguna</Text>
             <TextInput
               style={styles.input}
-              placeholder="Masukkan username"
+              placeholder="Masukkan Nama Pengguna"
               value={formData.username}
-              onChangeText={(text) => setFormData({...formData, username: text})}
+              onChangeText={(text) =>
+                setFormData({ ...formData, username: text })
+              }
               autoCapitalize="none"
             />
           </View>
 
           {/* Password */}
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>Kata Sandi</Text>
             <TextInput
               style={styles.input}
-              placeholder="Masukkan password"
+              placeholder="Masukkan Kata Sandi"
               value={formData.password}
-              onChangeText={(text) => setFormData({...formData, password: text})}
+              onChangeText={(text) =>
+                setFormData({ ...formData, password: text })
+              }
               secureTextEntry
             />
           </View>
 
           {/* Confirm Password */}
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>Konfirmasi Kata Sandi</Text>
             <TextInput
               style={styles.input}
-              placeholder="Masukkan password"
+              placeholder="Masukkan Kata Sandi"
               value={formData.confirmPassword}
-              onChangeText={(text) => setFormData({...formData, confirmPassword: text})}
+              onChangeText={(text) =>
+                setFormData({ ...formData, confirmPassword: text })
+              }
               secureTextEntry
             />
           </View>
@@ -137,7 +143,9 @@ export default function AddUserScreen({ navigation }: any) {
               style={styles.input}
               placeholder="Masukkan nama karyawan"
               value={formData.karyawan}
-              onChangeText={(text) => setFormData({...formData, karyawan: text})}
+              onChangeText={(text) =>
+                setFormData({ ...formData, karyawan: text })
+              }
             />
           </View>
 
@@ -148,26 +156,26 @@ export default function AddUserScreen({ navigation }: any) {
               style={styles.input}
               placeholder="Masukkan No HP"
               value={formData.hp}
-              onChangeText={(text) => setFormData({...formData, hp: text})}
+              onChangeText={(text) => setFormData({ ...formData, hp: text })}
               keyboardType="phone-pad"
             />
           </View>
 
           {/* Role */}
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Role</Text>
+            <Text style={styles.label}>Tipe Pengguna</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.role}
                 onValueChange={(itemValue) =>
-                  setFormData({...formData, role: itemValue})
+                  setFormData({ ...formData, role: itemValue })
                 }
                 style={styles.picker}
               >
                 {roles.map((role) => (
-                  <Picker.Item 
-                    key={role.value} 
-                    label={role.label} 
+                  <Picker.Item
+                    key={role.value}
+                    label={role.label}
                     value={role.value}
                   />
                 ))}
@@ -175,14 +183,17 @@ export default function AddUserScreen({ navigation }: any) {
             </View>
           </View>
 
-          <TouchableOpacity 
-             style={[styles.registerButton, isLoading && styles.registerButtonDisabled]}
+          <TouchableOpacity
+            style={[
+              styles.registerButton,
+              isLoading && styles.registerButtonDisabled,
+            ]}
             onPress={handleRegister}
           >
             {isLoading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-                <Text style={styles.registerButtonText}>Daftar</Text>
+              <Text style={styles.registerButtonText}>Daftar</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -194,14 +205,14 @@ export default function AddUserScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
     paddingTop: 40, // Sesuaikan dengan status bar
     paddingHorizontal: 16,
     paddingBottom: 8,
-    backgroundColor: '#fff',
-    borderBottomColor: '#eee',
+    backgroundColor: "#fff",
+    borderBottomColor: "#eee",
     borderBottomWidth: 1,
   },
   backButton: {
@@ -213,26 +224,26 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
-    color: '#333',
+    color: "#333",
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   picker: {
     height: 50,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
     marginBottom: 24,
   },
   form: {
-    width: '100%',
+    width: "100%",
   },
   inputContainer: {
     marginBottom: 16,
@@ -240,29 +251,29 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 8,
-    color: '#333',
+    color: "#333",
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
   },
   registerButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 24,
     marginBottom: 16,
   },
   registerButtonDisabled: {
-    backgroundColor: '#9E9E9E',
+    backgroundColor: "#9E9E9E",
   },
   registerButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

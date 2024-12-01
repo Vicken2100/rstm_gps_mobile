@@ -15,6 +15,7 @@ import AddCheckpointScreen from "./screens/AddCheckpointScreen";
 import JadwalDetailScreen from "./screens/JadwalDetailScreen";
 import CheckpointScreen from "./screens/CheckpointScreen";
 import RiwayatScreen from "./screens/RiwayatScreen";
+import MapScreen from "./screens/TrackingScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -29,19 +30,20 @@ export default function App() {
       >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="HomeAdmin" component={HomeAdminScreen} />
-        <Stack.Screen name="User" component={AddUserScreen} />
+        <Stack.Screen name="Pengguna" component={AddUserScreen} />
         <Stack.Screen name="Truk" component={AddTruckScreen} />
         <Stack.Screen name="TruckDetail" component={TruckDetailScreen} />
-        <Stack.Screen name="Delivery" component={SalesScreen} />
+        <Stack.Screen name="Penjadwalan" component={SalesScreen} />
         <Stack.Screen name="AddDelivery" component={AddDeliveryScreen} />
         <Stack.Screen name="AddCheckpoint" component={AddCheckpointScreen} />
         <Stack.Screen name="DeliveryDetail" component={JadwalDetailScreen} />
         <Stack.Screen name="CheckpointDetail" component={CheckpointScreen} />
         <Stack.Screen name="Riwayat" component={RiwayatScreen} />
+        <Stack.Screen name="Pelacakan" component={MapScreen} />
 
         <Stack.Screen name="EditTruck" component={EditTruckScreen} />
         <Stack.Screen name="settings" component={SettingsScreen} />
-        <Stack.Screen name="Maintenance" component={MaintenanceScreen} />
+        <Stack.Screen name="Perawatan" component={MaintenanceScreen} />
 
         {/* Tambahkan screen lain di sini ketika diperlukan */}
       </Stack.Navigator>
